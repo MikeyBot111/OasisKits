@@ -8,7 +8,7 @@ namespace OasisKits
 {
     public class OasisPlugin : RocketPlugin<OasisConfiguration>
     {
-        public static string version = "1.0.0.1";
+        public static string version = "1.0.0.2";
         public static OasisPlugin Instance;
 
         public static Dictionary<string, DateTime> GlobalCooldown = new Dictionary<string, DateTime>();
