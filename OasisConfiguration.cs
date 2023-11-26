@@ -2,18 +2,35 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System;
-
+using Rocket.Unturned.Player;
+using Steamworks;
 
 namespace OasisKits
 {
     public class OasisConfiguration : IRocketPluginConfiguration
     {
+        public string DatabaseAddress;
+        public string DatabaseUsername;
+        public string DatabasePassword;
+        public string DatabaseName;
+        public string DatabaseTableName;
+        public int DatabasePort;
+        public bool Enabled;
+
         [XmlArrayItem(ElementName = "Kit")]
         public List<Kit> Kits;
         public int GlobalCooldown;
 
         public void LoadDefaults()
         {
+            DatabaseAddress = "localhost";
+            DatabaseUsername = "root";
+            DatabasePassword = "";
+            DatabaseName = "unturned";
+            DatabaseTableName = "OasisKits";
+            DatabasePort = 3306;
+            Enabled = true;
+
             GlobalCooldown = 10;
             Kits = new List<Kit>() {
                 new Kit() { Cooldown = 10, Name = "Survival", XP = 0,Items = new List<KitItem>() { new KitItem(245, 1), new KitItem(81, 2), new KitItem(16, 1) }},
@@ -52,5 +69,12 @@ namespace OasisKits
 
         [XmlAttribute("amount")]
         public byte Amount;
+    }
+
+    public class PlayerCooldownComponent : UnturnedPlayerComponent
+    {
+        public int Timestamp = 0;
+        public string KitName = null;
+        public CSteamID PlayerID;
     }
 }

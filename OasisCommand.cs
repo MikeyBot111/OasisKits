@@ -54,15 +54,14 @@ namespace OasisKits
                 }
             }
 
-            KeyValuePair<string, DateTime> individualCooldown = OasisPlugin.InvididualCooldown.Where(k => k.Key == (caller.ToString() + kit.Name)).FirstOrDefault();
-            if (!individualCooldown.Equals(default(KeyValuePair<string, DateTime>)))
+
+            PlayerCooldownComponent NewRetrieve = Database.RetrieveUser(player.CSteamID, kit.Name);
+
+            if (DateTimeOffset.FromUnixTimeSeconds(NewRetrieve.Timestamp) >= DateTime.Now)
             {
-                double individualCooldownSeconds = (DateTime.Now - individualCooldown.Value).TotalSeconds;
-                if (individualCooldownSeconds < kit.Cooldown)
-                {
-                    UnturnedChat.Say(caller, OasisPlugin.Instance.Translations.Instance.Translate("command_kit_cooldown_kit", (int)(kit.Cooldown - individualCooldownSeconds)), UnityEngine.Color.red);
-                    return;
-                }
+                double secondsRemaining = (DateTimeOffset.FromUnixTimeSeconds(NewRetrieve.Timestamp) - DateTime.Now).TotalSeconds;
+                UnturnedChat.Say(caller, OasisPlugin.Instance.Translations.Instance.Translate("command_kit_cooldown_kit", (int)(secondsRemaining)), UnityEngine.Color.red);
+                return;
             }
 
             foreach (KitItem item in kit.Items)
@@ -111,13 +110,18 @@ namespace OasisKits
                 OasisPlugin.GlobalCooldown.Add(caller.ToString(), DateTime.Now);
             }
 
-            if (OasisPlugin.GlobalCooldown.ContainsKey(caller.ToString()))
+            if (NewRetrieve.KitName != null)
             {
-                OasisPlugin.InvididualCooldown[caller.ToString() + kit.Name] = DateTime.Now;
+                Database.DeleteUser(player.CSteamID, kit.Name);
             }
-            else
+            
+            if (kit.Cooldown != 0)
             {
-                OasisPlugin.InvididualCooldown.Add(caller.ToString() + kit.Name, DateTime.Now);
+                PlayerCooldownComponent NewPlayer = new PlayerCooldownComponent();
+                NewPlayer.Timestamp = (int)DateTimeOffset.Now.AddSeconds((double)kit.Cooldown).ToUnixTimeSeconds();
+                NewPlayer.PlayerID = player.CSteamID;
+                NewPlayer.KitName = kit.Name;
+                Database.AddUser(NewPlayer);
             }
         }
     }

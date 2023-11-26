@@ -12,7 +12,6 @@ namespace OasisKits
         public static OasisPlugin Instance;
 
         public static Dictionary<string, DateTime> GlobalCooldown = new Dictionary<string, DateTime>();
-        public static Dictionary<string, DateTime> InvididualCooldown = new Dictionary<string, DateTime>();
 
         public override TranslationList DefaultTranslations
         {
@@ -39,6 +38,10 @@ namespace OasisKits
 
             Logger.Log("OasisKits, Version " + OasisPlugin.version);
             Logger.Log("Checking errors... ");
+            if (Configuration.Instance.Enabled)
+            {
+                Database.CheckSchema();
+            }
             Logger.Log("No errors have been found!");
         }
 
